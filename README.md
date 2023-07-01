@@ -1,1 +1,1 @@
-# https://nikitatumanov.github.io/Puzzle/main.html#
+# https://nikitatumanov.github.io/puzzle/main.html#
