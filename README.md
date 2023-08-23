@@ -1,1 +1,1 @@
-# https://nikitatumanov.github.io/puzzle/main.html
+# https://danceonsad.github.io/dospuzzle/main.html

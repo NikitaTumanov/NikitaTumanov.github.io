@@ -16,33 +16,49 @@ let playlist = [
 	'Dance_on_Sad.wav',
 	'Fear.wav',
 	'Illusion.wav',
-	'Intro.wav',
 	'Search.wav',
-	'Signal_Fire.wav',
 	'Take_a_Break.wav',
 	'Без_Разницы.wav',
 	'Хорошо_и_Плохо.wav'
 ];
+
+let playedMusicId = [];
  
 let treck; // Переменная с индексом трека
- 
-// Событие перед загрузкой страницы
-window.onload = function() {
-    treck = 0; // Присваиваем переменной ноль
-    audio.src = './assets/audios/' + playlist[treck];
-  	audio.volume = 0.2;
+
+function getRandomInt() {
+  return Math.floor(Math.random() * playlist.length);
 }
 
-function switchTreck (numTreck) {
-    // Меняем значение атрибута src
-    audio.src = './assets/audios/' + playlist[numTreck];
-    // Назначаем время песни ноль
-    audio.currentTime = 0;
-    // Включаем песню
-    audio.play();
+function chooseNextRandomMusic(){
+    playedMusicId.unshift(treck);
+    if(playedMusicId.length == playlist.length){
+        playedMusicId.splice(4,3);
+    }
+    treck = getRandomInt();
+    while(playedMusicId.includes(treck)){
+        treck = getRandomInt();
+    }
+    console.log(playedMusicId);
 }
 
-btnPlay.addEventListener("click", function() {
+function choosePrevMusic(){
+    if (playedMusicId.length > 0){
+        treck = playedMusicId[0];
+        playedMusicId.shift(treck);
+    }
+    else {
+        temp = treck;
+        treck = getRandomInt();
+        while(treck == temp){
+            treck = getRandomInt();
+        }
+    }
+    console.log(playedMusicId);
+    console.log(treck);
+}
+
+function playMusic(){
     audio.play(); // Запуск песни
     // Запуск интервала 
     audioPlay = setInterval(function() {
@@ -54,40 +70,64 @@ btnPlay.addEventListener("click", function() {
         time.style.width = (audioTime * 100) / audioLength + '%';
         // Сравниваем, на какой секунде сейчас трек и всего сколько времени длится
         // И проверяем что переменная treck меньше четырёх
-        if (audioTime == audioLength && treck < (playlist.length-1)) {
-            treck++; // То Увеличиваем переменную 
-            switchTreck(treck); // Меняем трек
-        // Иначе проверяем тоже самое, но переменная treck больше или равна четырём
-        } else if (audioTime == audioLength && treck >= (playlist.length-1)) {
-            treck = 0; // То присваиваем treck ноль
-            switchTreck(treck); //Меняем трек
+        if (audioTime == audioLength) {
+            chooseNextRandomMusic();
+            switchTreck(treck);
         }
     }, 10)
+}
+
+function pauseMusic(){
+    audio.pause(); // Останавливает песню
+    clearInterval(audioPlay) // Останавливает интервал
+}
+
+// Событие перед загрузкой страницы
+window.onload = function() {
+    treck = getRandomInt(); // Присваиваем переменной ноль
+    audio.src = './assets/audios/' + playlist[treck];
+    audio.volume = 0.2;
+}
+
+//document.body.addEventListener("mousemove", function () {
+//    playMusic();
+//})
+
+//document.body.addEventListener("touchstart", function () {
+//    playMusic();
+//})
+
+function switchTreck (numTreck) {
+    // Меняем значение атрибута src
+    audio.src = './assets/audios/' + playlist[numTreck];
+    // Назначаем время песни ноль
+    audio.currentTime = 0;
+    // Включаем песню
+    audio.play();
+}
+
+btnPlay.addEventListener("click", function() {
+    playMusic();
 });
 
 btnPause.addEventListener("click", function() {
-    audio.pause(); // Останавливает песню
-    clearInterval(audioPlay) // Останавливает интервал
+    pauseMusic();
 });
 
 btnPrev.addEventListener("click", function() {
-    // Проверяем что переменная treck больше нуля
-    if (treck > 0) {
-        treck--; // Если верно, то уменьшаем переменную на один
-        switchTreck(treck); // Меняем песню.
-    } else { // Иначе
-        treck = (playlist.length-1); // Присваиваем три
-        switchTreck(treck); // Меняем песню
-    }
+    choosePrevMusic();
+    switchTreck(treck);
 });
 
 btnNext.addEventListener("click", function() {
-    // Проверяем что переменная treck больше трёх
-    if (treck < (playlist.length-1)) { // Если да, то
-        treck++; // Увеличиваем её на один
-        switchTreck(treck); // Меняем песню 
-    } else { // Иначе
-        treck = 0; // Присваиваем ей ноль
-        switchTreck(treck); // Меняем песню
+    chooseNextRandomMusic();
+    switchTreck(treck); // Меняем песню
+});
+
+document.addEventListener("visibilitychange", function(){
+    if (document.hidden){
+        pauseMusic()
+    } else {
+        playMusic();    
     }
 });
